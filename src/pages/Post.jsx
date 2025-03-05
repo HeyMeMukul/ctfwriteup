@@ -53,7 +53,7 @@ export default function Post() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="py-12 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen"
+            className="py-12 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen text-white"
         >
             <Container>
                 {/* Post Image */}
@@ -162,7 +162,7 @@ export default function Post() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.8 }}
-                    className="prose prose-lg max-w-4xl mx-auto dark:prose-invert bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl"
+                    className="prose prose-lg max-w-4xl mx-auto dark:prose-invert  dark:bg-gray-800 p-8 rounded-xl shadow-2xl"
                 >
                     <div dangerouslySetInnerHTML={{ __html: post.content }} />
                 </motion.div>
