@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { Query } from "appwrite";
 import appwriteService from "../appwrite/config";
 import authService from "../appwrite/auth";
-import { Container, Button, PostCard } from "../components"; // Import PostCard directly
+import { Container, Button, PostCard } from "../components";
 
 export default function Profile() {
     const [user, setUser] = useState(null);
@@ -11,32 +11,36 @@ export default function Profile() {
     const [loadingPosts, setLoadingPosts] = useState(true);
     
     useEffect(() => {
-        // Fetch user profile data
-        authService.getCurrentUser().then((userData) => {
-            if (userData) {
-                setUser({
-                    ...userData,
-                    id: userData.$id,
-                    joined: formatDate(userData.registration),
-                });
-            }
-        });
-    }, []);
+        const fetchUserAndPosts = async () => {
+            try {
+                // Fetch user profile data
+                const userData = await authService.getCurrentUser();
+                if (userData) {
+                    setUser({
+                        ...userData,
+                        id: userData.$id,
+                        joined: formatDate(userData.registration),
+                    });
 
-    // Fetch user's posts when user data is available
-    useEffect(() => {
-        if (user) {
-            setLoadingPosts(true);
-            appwriteService.getPosts([['userId', '=', user.id]])
-                .then((posts) => {
-                    if (posts) {
+                    // Fetch user's posts
+                    const posts = await appwriteService.getPosts([
+                        Query.equal("userId", userData.$id),
+                        Query.equal("status", "active")
+                    ]);
+
+                    if (posts && posts.documents) {
                         setWriteups(posts.documents);
                     }
-                })
-                .catch((error) => console.error("Error fetching posts:", error))
-                .finally(() => setLoadingPosts(false));
-        }
-    }, [user]);
+                }
+            } catch (error) {
+                console.error("Error in profile page:", error);
+            } finally {
+                setLoadingPosts(false);
+            }
+        };
+
+        fetchUserAndPosts();
+    }, []);
 
     // Function to format dates
     const formatDate = (dateString) => {
@@ -74,7 +78,28 @@ export default function Profile() {
                         </div>
                     </div>
 
-                
+                    {/* User's Posts Section */}
+                    <div className="mt-8">
+                        <h2 className="text-xl font-semibold mb-4">Your Posts</h2>
+                        {loadingPosts ? (
+                            <p className="text-gray-400">Loading posts...</p>
+                        ) : writeups.length > 0 ? (
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {writeups.map((post) => (
+                                    <PostCard key={post.$id} {...post} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center bg-gray-700 p-6 rounded-lg">
+                                <p className="text-gray-400 mb-4">You haven't created any posts yet.</p>
+                                <Link to="/add-post">
+                                    <Button bgColor="bg-blue-600" textColor="text-white">
+                                        Create Your First Post
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
+                    </div>
                 </div>
             ) : (
                 <p className="text-white">Loading user profile...</p>

@@ -19,6 +19,7 @@ function Signup() {
       if (userData) {
         const userData = await authService.getCurrentUser();
         if (userData) dispatch(login(userData));
+        localStorage.setItem('userData', JSON.stringify(userData));
         navigate("/profile");
       }
     } catch (error) {
