@@ -18,8 +18,14 @@ function Login() {
       const session = await authService.login(data);
       if (session) {
         const userData = await authService.getCurrentUser();
-        if (userData) dispatch(authLogin(userData));
-        navigate("/profile");
+        if (userData) {
+          // Dispatch login action and store in localStorage
+          dispatch(authLogin(userData));
+          
+          // Persist user data in localStorage
+          localStorage.setItem('userData', JSON.stringify(userData));
+        }
+        navigate("/");  // Changed to home page instead of profile
       }
     } catch (error) {
       setError(error.message);
@@ -29,7 +35,7 @@ function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
       <div className="mx-auto w-full max-w-lg bg-gray-800 rounded-xl p-10 border border-gray-700 shadow-lg">
-        <div className="mb-2 flex justify-center">
+      <div className="mb-2 flex justify-center">
           <span className="inline-block w-full max-w-[100px]">
             <Logo width="100%" />
           </span>
